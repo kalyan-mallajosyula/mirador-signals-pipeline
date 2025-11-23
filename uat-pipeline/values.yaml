@@ -17,7 +17,7 @@ namespaceOverride: ""
 downstream:
   # Service Graph collector endpoint (receives all traces)
   servicegraph:
-    endpoint: "servicegraph-collector.observability.svc.cluster.local:4317"
+    endpoint: "servicegraph-collector.miradorstack.svc.cluster.local:4317"
     tls:
       enabled: false
       insecure: true
@@ -37,7 +37,7 @@ downstream:
 
   # Logs collector endpoint
   logs:
-    endpoint: "logs-collector.observability.svc.cluster.local:4317"
+    endpoint: "logs-collector.miradorstack.svc.cluster.local:4317"
     tls:
       enabled: false
       insecure: true
@@ -46,7 +46,7 @@ downstream:
 
   # Metrics collector endpoint
   metrics:
-    endpoint: "metrics-collector.observability.svc.cluster.local:4317"
+    endpoint: "metrics-collector.miradorstack.svc.cluster.local:4317"
     tls:
       enabled: false
       insecure: true
@@ -182,13 +182,13 @@ config:
     # OTLP exporter for traces - routes to Service Graph collector
     # Note: Actual endpoint/auth configuration is injected via templates/_config.tpl
     otlp/servicegraph:
-      endpoint: "servicegraph-collector.observability.svc.cluster.local:4317"
+      endpoint: "servicegraph-collector.miradorstack.svc.cluster.local:4317"
       tls:
         insecure: true
 
     # OTLP exporter for logs - routes to logs collector
     otlp/logs:
-      endpoint: "logs-collector.observability.svc.cluster.local:4317"
+      endpoint: "logs-collector.miradorstack.svc.cluster.local:4317"
       tls:
         insecure: true
       sending_queue:
@@ -197,7 +197,7 @@ config:
 
     # OTLP exporter for metrics - routes to metrics collector
     otlp/metrics:
-      endpoint: "metrics-collector.observability.svc.cluster.local:4317"
+      endpoint: "metrics-collector.miradorstack.svc.cluster.local:4317"
       tls:
         insecure: true
   extensions:

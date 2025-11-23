@@ -11,13 +11,17 @@ Single Helm release that deploys the entire Mirador signals pipeline stack:
 ### Single Command Deployment
 
 ```bash
-# Deploy the entire stack
+# Option 1: Create namespace manually first
+kubectl create namespace miradorstack
+helm install mirador-pipelines ./mirador-pipelines --namespace miradorstack
+
+# Option 2: Let Helm create the namespace automatically (recommended)
 helm install mirador-pipelines ./mirador-pipelines \
-  --namespace observability \
+  --namespace miradorstack \
   --create-namespace
 ```
 
-That's it! This single command deploys both the gateway and service graph collectors as a connected stack.
+That's it! This single command deploys the complete pipeline stack (gateway + servicegraph + spanmetrics + isolationforest).
 
 ## What Gets Deployed
 
@@ -49,7 +53,7 @@ That's it! This single command deploys both the gateway and service graph collec
 
 ```bash
 # Check all pods
-kubectl get pods -n observability
+kubectl get pods -n miradorstack
 
 # Expected output:
 # mirador-pipelines-gateway-xxx-yyy         1/1   Running   0   30s  (x3)
@@ -58,7 +62,7 @@ kubectl get pods -n observability
 # mirador-pipelines-isolationforest-xxx-yyy 1/1   Running   0   30s  (x1)
 
 # Check services
-kubectl get svc -n observability
+kubectl get svc -n miradorstack
 
 # Expected output:
 # mirador-pipelines-gateway         ClusterIP   10.x.x.x   <none>        4317/TCP,4318/TCP,...   30s
@@ -89,7 +93,7 @@ gateway:
             timeout: 10s
         resolver:
           dns:
-            hostname: "mirador-pipelines-servicegraph.observability.svc.cluster.local"
+            hostname: "mirador-pipelines-servicegraph.miradorstack.svc.cluster.local"
             port: 4317
             interval: 5s  # DNS refresh interval
 ```
@@ -182,7 +186,7 @@ servicegraph:
 ```bash
 # Upgrade the entire stack
 helm upgrade mirador-pipelines ./mirador-pipelines \
-  --namespace observability \
+  --namespace miradorstack \
   --reuse-values
 ```
 
@@ -190,7 +194,7 @@ helm upgrade mirador-pipelines ./mirador-pipelines \
 
 ```bash
 # Remove entire stack with single command
-helm uninstall mirador-pipelines --namespace observability
+helm uninstall mirador-pipelines --namespace miradorstack
 ```
 
 ## Advanced Configuration
@@ -224,7 +228,7 @@ servicegraph:
 Deploy with custom values:
 ```bash
 helm install mirador-pipelines ./mirador-pipelines \
-  --namespace observability \
+  --namespace miradorstack \
   -f custom-values.yaml
 ```
 
@@ -238,20 +242,20 @@ To configure TLS and auth, you'll need to modify the `config.exporters` section 
 
 ```bash
 # Gateway logs
-kubectl logs -n observability -l app.kubernetes.io/name=mirador-otel-gateway -l app.kubernetes.io/instance=mirador-pipelines-gateway
+kubectl logs -n miradorstack -l app.kubernetes.io/name=mirador-otel-gateway -l app.kubernetes.io/instance=mirador-pipelines-gateway
 
 # Service Graph logs
-kubectl logs -n observability -l app.kubernetes.io/name=mirador-otel-gateway -l app.kubernetes.io/instance=mirador-pipelines-servicegraph
+kubectl logs -n miradorstack -l app.kubernetes.io/name=mirador-otel-gateway -l app.kubernetes.io/instance=mirador-pipelines-servicegraph
 ```
 
 ### Port Forward for Testing
 
 ```bash
 # Forward gateway OTLP port
-kubectl port-forward -n observability svc/mirador-pipelines-gateway 4317:4317
+kubectl port-forward -n miradorstack svc/mirador-pipelines-gateway 4317:4317
 
 # Forward service graph OTLP port
-kubectl port-forward -n observability svc/mirador-pipelines-servicegraph 4318:4318
+kubectl port-forward -n miradorstack svc/mirador-pipelines-servicegraph 4318:4318
 ```
 
 ## Architecture
@@ -316,14 +320,14 @@ helm dependency build ./mirador-pipelines
 
 Check events:
 ```bash
-kubectl describe pods -n observability -l app.kubernetes.io/instance=mirador-pipelines
+kubectl describe pods -n miradorstack -l app.kubernetes.io/instance=mirador-pipelines
 ```
 
 ### Service Graph Not Receiving Traces
 
 Check gateway is routing to correct endpoint:
 ```bash
-kubectl logs -n observability -l app.kubernetes.io/instance=mirador-pipelines-gateway | grep servicegraph
+kubectl logs -n miradorstack -l app.kubernetes.io/instance=mirador-pipelines-gateway | grep servicegraph
 ```
 
-The endpoint should be: `mirador-pipelines-servicegraph.observability.svc.cluster.local:4317`
+The endpoint should be: `mirador-pipelines-servicegraph.miradorstack.svc.cluster.local:4317`

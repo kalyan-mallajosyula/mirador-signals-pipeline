@@ -1,6 +1,12 @@
 # Mirador Pipelines - Umbrella Chart
 # Single helm install deploys the entire connected pipeline stack
 
+# Global settings
+global:
+  # Default namespace for the stack (used in DNS hostnames)
+  # To create namespace automatically, use: --create-namespace flag with helm install
+  namespace: miradorstack
+
 # Gateway Pipeline Configuration
 gateway:
   enabled: true
@@ -39,7 +45,7 @@ gateway:
               insecure: true
         resolver:
           dns:
-            hostname: "mirador-pipelines-servicegraph.observability.svc.cluster.local"
+            hostname: "mirador-pipelines-servicegraph.miradorstack.svc.cluster.local"
             port: "4317"
             interval: 5s
             timeout: 1s
@@ -54,26 +60,26 @@ gateway:
               insecure: true
         resolver:
           dns:
-            hostname: "mirador-pipelines-spanmetrics.observability.svc.cluster.local"
+            hostname: "mirador-pipelines-spanmetrics.miradorstack.svc.cluster.local"
             port: "4317"
             interval: 5s
             timeout: 1s
 
       # Fallback: Standard OTLP exporter for Service Graph (if loadbalancing disabled)
       otlp/servicegraph:
-        endpoint: "mirador-pipelines-servicegraph.observability.svc.cluster.local:4317"
+        endpoint: "mirador-pipelines-servicegraph.miradorstack.svc.cluster.local:4317"
         tls:
           insecure: true
 
       # Fallback: Standard OTLP exporter for Span Metrics (if loadbalancing disabled)
       otlp/spanmetrics:
-        endpoint: "mirador-pipelines-spanmetrics.observability.svc.cluster.local:4317"
+        endpoint: "mirador-pipelines-spanmetrics.miradorstack.svc.cluster.local:4317"
         tls:
           insecure: true
 
       # Logs routing (standard OTLP)
       otlp/logs:
-        endpoint: "logs-collector.observability.svc.cluster.local:4317"
+        endpoint: "logs-collector.miradorstack.svc.cluster.local:4317"
         tls:
           insecure: true
         sending_queue:
@@ -82,7 +88,7 @@ gateway:
 
       # Metrics routing (standard OTLP)
       otlp/metrics:
-        endpoint: "metrics-collector.observability.svc.cluster.local:4317"
+        endpoint: "metrics-collector.miradorstack.svc.cluster.local:4317"
         tls:
           insecure: true
 
@@ -220,12 +226,12 @@ servicegraph:
 
     exporters:
       otlp/traces:
-        endpoint: "tempo.observability.svc.cluster.local:4317"
+        endpoint: "tempo.miradorstack.svc.cluster.local:4317"
         tls:
           insecure: true
 
       otlp/metrics:
-        endpoint: "prometheus.observability.svc.cluster.local:4317"
+        endpoint: "prometheus.miradorstack.svc.cluster.local:4317"
         tls:
           insecure: true
 
@@ -349,12 +355,12 @@ spanmetrics:
 
     exporters:
       otlp/isolationforest:
-        endpoint: "mirador-pipelines-isolationforest.observability.svc.cluster.local:4317"
+        endpoint: "mirador-pipelines-isolationforest.miradorstack.svc.cluster.local:4317"
         tls:
           insecure: true
 
       otlp/traces:
-        endpoint: "tempo.observability.svc.cluster.local:4317"
+        endpoint: "tempo.miradorstack.svc.cluster.local:4317"
         tls:
           insecure: true
 
@@ -464,7 +470,7 @@ isolationforest:
   config:
     exporters:
       otlp/metrics:
-        endpoint: "prometheus.observability.svc.cluster.local:4317"
+        endpoint: "prometheus.miradorstack.svc.cluster.local:4317"
         tls:
           insecure: true
 

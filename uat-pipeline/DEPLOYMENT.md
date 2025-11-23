@@ -13,7 +13,7 @@ The Mirador Signals Pipeline uses an **umbrella chart** approach. This base char
 ```bash
 cd ../mirador-pipelines
 helm dependency update
-helm install mirador-pipelines . --namespace observability
+helm install mirador-pipelines . --namespace miradorstack
 ```
 
 This deploys all four collectors:
