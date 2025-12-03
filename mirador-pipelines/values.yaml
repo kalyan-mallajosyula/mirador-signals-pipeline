@@ -121,16 +121,6 @@ gateway:
             endpoint: ${env:MY_POD_IP}:4317
           http:
             endpoint: ${env:MY_POD_IP}:4318
-      jaeger:
-        protocols:
-          grpc:
-            endpoint: ${env:MY_POD_IP}:14250
-          thrift_http:
-            endpoint: ${env:MY_POD_IP}:14268
-          thrift_compact:
-            endpoint: ${env:MY_POD_IP}:6831
-      zipkin:
-        endpoint: ${env:MY_POD_IP}:9411
       prometheus:
         config:
           scrape_configs:
@@ -153,7 +143,7 @@ gateway:
         - health_check
       pipelines:
         traces:
-          receivers: [otlp, jaeger, zipkin]
+          receivers: [otlp]
           processors: [memory_limiter, batch/traces]
           exporters: [loadbalancing/servicegraph, loadbalancing/spanmetrics]  # Load-balanced fan-out to both use cases
 

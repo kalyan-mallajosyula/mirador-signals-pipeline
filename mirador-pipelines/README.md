@@ -28,7 +28,7 @@ That's it! This single command deploys the complete pipeline stack (gateway + se
 ### Gateway Collector
 - **Name:** `mirador-pipelines-gateway`
 - **Replicas:** 3
-- **Receivers:** OTLP (4317/4318), Jaeger (14250, 14268, 6831), Zipkin (9411)
+- **Receivers:** OTLP (gRPC: 4317, HTTP: 4318)
 - **Function:** Fan-out traces to service graph AND span metrics collectors
 
 ### Service Graph Collector (Use Case 1)
@@ -263,9 +263,7 @@ kubectl port-forward -n miradorstack svc/mirador-pipelines-servicegraph 4318:431
 ```
 Applications
     │
-    ├─── OTLP (4317/4318)
-    ├─── Jaeger (14250, 14268, 6831)
-    └─── Zipkin (9411)
+    └─── OTLP (gRPC: 4317, HTTP: 4318)
          │
          ▼
 ┌──────────────────────────────────────────────────────────┐
