@@ -7,24 +7,24 @@ dependencies:
   # Gateway collector - receives telemetry from applications
   - name: otel-collector
     version: "0.1.0"
-    repository: "file://../charts/otel-collector"
+    repository: "file://./charts/otel-collector"
     alias: gateway
     condition: gateway.enabled
   # Service Graph collector - generates service topology metrics (Use Case 1)
   - name: otel-collector
     version: "0.1.0"
-    repository: "file://../charts/otel-collector"
+    repository: "file://./charts/otel-collector"
     alias: servicegraph
     condition: servicegraph.enabled
   # Span Metrics collector - generates RED metrics from traces (Use Case 2)
   - name: otel-collector
     version: "0.1.0"
-    repository: "file://../charts/otel-collector"
+    repository: "file://./charts/otel-collector"
     alias: spanmetrics
     condition: spanmetrics.enabled
   # Isolation Forest - anomaly detection on span metrics (Use Case 2)
   - name: otel-collector
     version: "0.1.0"
-    repository: "file://../charts/otel-collector"
+    repository: "file://./charts/otel-collector"
     alias: isolationforest
     condition: isolationforest.enabled

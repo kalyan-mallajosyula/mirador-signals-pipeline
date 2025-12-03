@@ -73,15 +73,16 @@ kubectl get svc -n miradorstack
 
 ### Load Balancing Exporters (Default)
 
-The gateway uses **load balancing exporters** by default for optimal traffic distribution to downstream collectors:
+The gateway uses **load balancing exporters** with Kubernetes-native service discovery for optimal traffic distribution:
 
 **Benefits:**
-- Automatic pod discovery via DNS resolution
+- Native Kubernetes pod discovery (no DNS lookups needed)
+- Direct endpoint resolution via K8s API
 - TraceID-based routing ensures complete traces go to the same backend
 - Better load distribution across downstream collector replicas
 - Automatic failover and health checking
 
-**Configuration:**
+**Default Configuration (K8s Resolver):**
 ```yaml
 gateway:
   config:
@@ -92,10 +93,28 @@ gateway:
           otlp:
             timeout: 10s
         resolver:
-          dns:
-            hostname: "mirador-pipelines-servicegraph.miradorstack.svc.cluster.local"
-            port: 4317
-            interval: 5s  # DNS refresh interval
+          k8s:
+            service: "mirador-pipelines-servicegraph"
+            ports:
+              - 4317
+```
+
+> **Note:** The K8s resolver requires RBAC permissions (already configured in the base chart).
+
+**Alternative: DNS Resolver**
+For environments without K8s API access:
+```yaml
+loadbalancing/servicegraph:
+  routing_key: "traceID"
+  protocol:
+    otlp:
+      timeout: 10s
+  resolver:
+    dns:
+      hostname: "mirador-pipelines-servicegraph.miradorstack.svc.cluster.local"
+      port: "4317"
+      interval: 5s
+      timeout: 1s
 ```
 
 **Alternative: Static Resolver**
@@ -111,20 +130,6 @@ loadbalancing/servicegraph:
       hostnames:
       - "servicegraph-backend-1:4317"
       - "servicegraph-backend-2:4317"
-```
-
-**Alternative: Kubernetes Service Resolver**
-For direct pod discovery (requires RBAC):
-```yaml
-loadbalancing/servicegraph:
-  routing_key: "traceID"
-  protocol:
-    otlp:
-      timeout: 10s
-  resolver:
-    k8s:
-      service: "mirador-pipelines-servicegraph"
-      ports: [4317]
 ```
 
 **Fallback to Standard OTLP:**
