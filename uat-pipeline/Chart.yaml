@@ -1,0 +1,15 @@
+apiVersion: v2
+name: mirador-otel-gateway
+version: 0.1.0
+description: Mirador Signals Gateway - OpenTelemetry Collector for UAT Environment
+type: application
+home: https://opentelemetry.io/
+sources:
+  - https://github.com/open-telemetry/opentelemetry-collector
+  - https://github.com/open-telemetry/opentelemetry-collector-contrib
+maintainers:
+  - name: dmitryax
+  - name: jaronoff97
+  - name: TylerHelmuth
+icon: https://opentelemetry.io/img/logos/opentelemetry-logo-nav.png
+appVersion: 0.138.0
