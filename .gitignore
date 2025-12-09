@@ -1,6 +1,3 @@
-# Claude Code directory
-.claude/
-
 # Helm - ignore packaged charts and lock file, but keep source charts
 *.tgz
 Chart.lock

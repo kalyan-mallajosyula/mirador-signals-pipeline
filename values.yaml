@@ -71,6 +71,20 @@ gateway:
             ports:
               - 4317
 
+      # Use Case 3: Application Metrics Anomaly Detection - Load Balanced (NEW)
+      loadbalancing/isolationforest-metrics:
+        routing_key: "resource"  # Route by resource attributes for consistent anomaly baselines
+        protocol:
+          otlp:
+            timeout: 10s
+            tls:
+              insecure: true
+        resolver:
+          k8s:
+            service: "mirador-pipelines-isolationforest"
+            ports:
+              - 4317
+
       # Fallback: Standard OTLP exporter for Service Graph (if loadbalancing disabled)
       otlp/servicegraph:
         endpoint: "mirador-pipelines-servicegraph.miradorstack.svc.cluster.local:4317"
@@ -83,18 +97,18 @@ gateway:
         tls:
           insecure: true
 
-      # Logs routing (standard OTLP)
+      # Logs routing to Cassandra
       otlp/logs:
-        endpoint: "logs-collector.miradorstack.svc.cluster.local:4317"
+        endpoint: "cassandra-logs.miradorstack.svc.cluster.local:4317"
         tls:
           insecure: true
         sending_queue:
           enabled: true
           num_consumers: 10
 
-      # Metrics routing (standard OTLP)
+      # Metrics routing to VictoriaMetrics
       otlp/metrics:
-        endpoint: "metrics-collector.miradorstack.svc.cluster.local:4317"
+        endpoint: "victoriametrics.miradorstack.svc.cluster.local:4317"
         tls:
           insecure: true
 
@@ -161,7 +175,7 @@ gateway:
         metrics:
           receivers: [otlp, prometheus]
           processors: [memory_limiter, batch/metrics]
-          exporters: [otlp/metrics]
+          exporters: [loadbalancing/isolationforest-metrics]  # Single-export: All metrics through IsolationForest for anomaly detection
 
   # Port configuration - only OTLP needed for gateway
   ports:
@@ -239,12 +253,12 @@ servicegraph:
 
     exporters:
       otlp/traces:
-        endpoint: "tempo.miradorstack.svc.cluster.local:4317"
+        endpoint: "victoriatraces.miradorstack.svc.cluster.local:4317"
         tls:
           insecure: true
 
       otlp/metrics:
-        endpoint: "prometheus.miradorstack.svc.cluster.local:4317"
+        endpoint: "victoriametrics.miradorstack.svc.cluster.local:4317"
         tls:
           insecure: true
 
@@ -373,7 +387,7 @@ spanmetrics:
           insecure: true
 
       otlp/traces:
-        endpoint: "tempo.miradorstack.svc.cluster.local:4317"
+        endpoint: "victoriatraces.miradorstack.svc.cluster.local:4317"
         tls:
           insecure: true
 
@@ -470,7 +484,7 @@ isolationforest:
 
   nameOverride: "isolationforest"
   mode: "deployment"
-  replicaCount: 1
+  replicaCount: 3  # Scaled for HA and loadbalancing from gateway
 
   resources:
     limits:
@@ -483,7 +497,7 @@ isolationforest:
   config:
     exporters:
       otlp/metrics:
-        endpoint: "prometheus.miradorstack.svc.cluster.local:4317"
+        endpoint: "victoriametrics.miradorstack.svc.cluster.local:4317"
         tls:
           insecure: true
 
